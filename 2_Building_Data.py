@@ -156,30 +156,6 @@ if pd.notna(building_info['sqfootage']):
                 # Calculate total kBTU for the most recent year only
                 total_kbtu = 0
                 
-                # Electric for most recent year - ONLY if not empty
-                if not electric_df.empty:
-                    electric_recent = electric_df[electric_df['year'] == latest_year]
-                    if not electric_recent.empty and 'usage' in electric_recent.columns:
-                        electric_kwh = electric_recent['usage'].sum()
-                        total_kbtu += electric_kwh * KWH_TO_KBTU
-                
-                # Natural Gas for most recent year - ONLY if not empty  
-                if not gas_df.empty:
-                    gas_recent = gas_df[gas_df['year'] == latest_year]
-                    if not gas_recent.empty and 'usage' in gas_recent.columns:
-                        gas_therms = gas_recent['usage'].sum()
-                        total_kbtu += gas_therms * THERM_TO_KBTU
-                
-                # Solar for most recent year - ONLY if not empty
-                if not solar_df.empty:
-                    solar_recent = solar_df[solar_df['year'] == latest_year]
-                    if not solar_recent.empty and 'usage' in solar_recent.columns:
-                        solar_kwh = solar_recent['usage'].sum()
-                        total_kbtu -= solar_kwh * KWH_TO_KBTU
-                        latest_year = years_with_data[-1]
-                
-                # Calculate total kBTU for the most recent year only
-                total_kbtu = 0
 
                 # Electric for most recent year
                 electric_recent = electric_df[electric_df['year'] == latest_year]
@@ -203,8 +179,8 @@ if pd.notna(building_info['sqfootage']):
                 if sqft_value > 0 and total_kbtu > 0:
                     current_eui = total_kbtu / sqft_value
                     
-                    # Show which year we're using
-                    st.write(f"**Calculating EUI for {latest_year}**")
+                    # # Show which year we're using
+                    # st.write(f"**Calculating EUI for {latest_year}**")
                     
                     # Bar chart comparing current vs baseline
                     if baseline_eui_value:
