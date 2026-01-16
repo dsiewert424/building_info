@@ -316,7 +316,7 @@ if not solar_df.empty:
     st.plotly_chart(fig_solar, use_container_width=True)
 
 # 3. Combined meter data table
-st.subheader("📋 All Meter Data")
+st.subheader("All Meter Data")
 if not all_meter_data.empty:
     # Sort by date
     all_meter_data = all_meter_data.sort_values('startdate')
