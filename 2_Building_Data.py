@@ -162,6 +162,9 @@ if pd.notna(building_info['sqfootage']):
                 electric_recent = electric_df[electric_df['year'] == latest_year]
                 if not electric_recent.empty and 'usage' in electric_recent.columns:
                     electric_kwh = electric_recent['usage'].sum()
+                    one = electric_kwh * KWH_TO_KBTU
+                    st.subheader(electric_kwh)
+                    st.subheader(one)
                     total_kbtu += electric_kwh * KWH_TO_KBTU
                 
                 # Natural Gas for most recent year
@@ -174,9 +177,13 @@ if pd.notna(building_info['sqfootage']):
                 solar_recent = solar_df[solar_df['year'] == latest_year]
                 if not solar_recent.empty and 'usage' in solar_recent.columns:
                     solar_kwh = solar_recent['usage'].sum()
+                    one = electric_kwh * KWH_TO_KBTU
+                    st.subheader(solar_kwh)
+                    st.subheader(one)
                     total_kbtu -= solar_kwh * KWH_TO_KBTU
                 
                 # Calculate EUI for most recent year
+                st.subheader("total kbtu: " + total_kbtu)
                 if sqft_value > 0 and total_kbtu > 0:
                     current_eui = total_kbtu / sqft_value
                     
