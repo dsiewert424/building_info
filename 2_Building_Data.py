@@ -13,7 +13,6 @@ conn = st.connection("sql", type="sql")
 # Conversion factors
 
 KWH_TO_KBTU = 3.412  # 1 kWh = 3.412 kBTU
-KWH_TO_KBTU = 1
 THERM_TO_KBTU = 100  # 1 therm = 100 kBTU (also ~1 CCF = 100 kBTU)
 
 # Baseline EUI lookup dictionary (in kBTU/sq ft)
