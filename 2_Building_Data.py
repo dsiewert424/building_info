@@ -187,8 +187,7 @@ if pd.notna(building_info['sqfootage']):
                 if sqft_value > 0 and total_kbtu > 0:
                     current_eui = total_kbtu / sqft_value
                     st.subheader(f"total kbtu: {current_eui}")
-                    # # Show which year we're using
-                    # st.write(f"**Calculating EUI for {latest_year}**")
+                    st.subheader(f"year: {latest_year}")
                     
                     # Bar chart comparing current vs baseline
                     if baseline_eui_value:
