@@ -153,6 +153,7 @@ if pd.notna(building_info['sqfootage']):
             
             if years_with_data:
                 latest_year = years_with_data[-1]
+                latest_year = 2024
                 
                 # Calculate total kBTU for the most recent year only
                 total_kbtu = 0
