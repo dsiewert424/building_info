@@ -183,7 +183,7 @@ if pd.notna(building_info['sqfootage']):
                     total_kbtu -= solar_kwh * KWH_TO_KBTU
                 
                 # Calculate EUI for most recent year
-                st.subheader("total kbtu: " + total_kbtu)
+                st.subheader(f"total kbtu: {total_kbtu}")
                 if sqft_value > 0 and total_kbtu > 0:
                     current_eui = total_kbtu / sqft_value
                     
