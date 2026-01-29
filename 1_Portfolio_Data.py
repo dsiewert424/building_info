@@ -154,6 +154,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # Hardcoded data
+st.subheader("Hardcoded Data from 2025 Annual Report")
 eui_data = {
     "years": [2018, 2019, 2021, 2022, 2023, 2024],
     "baseline": [94.5, 78.33, 54.32, 80, 74.14, 64.2],
@@ -185,6 +186,139 @@ fig.update_layout(
         'font': {'size': 20}
     }
 )
+
+st.subheader("Data from SQL Database")
+
+st.subheader("Data from SQL Database")
+
+# Function to get meter data (provided)
+def get_meter_data(table_name, espmid, energy_type):
+    query = f"""
+        SELECT 
+            [entryid],
+            [meterid],
+            TRY_CAST([usage] AS FLOAT) as usage,
+            [startdate],
+            [enddate]
+        FROM [dbo].[{table_name}]
+        WHERE [espmid] = '{espmid}'
+        ORDER BY [startdate]
+    """
+    df = conn.query(query)
+    if not df.empty:
+        df['energy_type'] = energy_type
+        df['startdate'] = pd.to_datetime(df['startdate'])
+        df['enddate'] = pd.to_datetime(df['enddate'])
+        df['year'] = df['startdate'].dt.year
+    else:
+        # Create empty dataframe WITH the 'year' column
+        df = pd.DataFrame(columns=['entryid', 'meterid', 'usage', 'startdate', 'enddate', 'energy_type', 'year'])
+    
+    return df
+
+# Get all ESPMIDs and their square footage
+buildings_query = """
+    SELECT [espmid], TRY_CAST([sqfootage] AS FLOAT) as sqft
+    FROM [dbo].[ESPMFIRSTTEST]
+    WHERE [sqfootage] IS NOT NULL 
+    AND TRY_CAST([sqfootage] AS FLOAT) > 0
+"""
+buildings_df = conn.query(buildings_query)
+
+st.write("### Calculated EUI from Actual Meter Data")
+
+# Initialize totals for each year
+KWH_TO_KBTU = 3.412
+THERM_TO_KBTU = 100
+
+# Initialize dictionaries
+total_energy_by_year = {year: 0 for year in range(2018, 2026)}
+total_sqft_by_year = {year: 0 for year in range(2018, 2026)}
+
+# Progress bar for processing
+progress_bar = st.progress(0)
+total_buildings = len(buildings_df)
+
+for idx, building_row in buildings_df.iterrows():
+    espmid = building_row['espmid']
+    sqft = building_row['sqft']
+    
+    if sqft > 0:
+        # Get meter data for this building
+        electric_df = get_meter_data('electric', espmid, 'Electric')
+        gas_df = get_meter_data('naturalgas', espmid, 'Natural Gas')
+        solar_df = get_meter_data('solar', espmid, 'Solar')
+        
+        # Process each year
+        for year in range(2018, 2026):
+            # Check if building has any data this year
+            has_electric = not electric_df[electric_df['year'] == year].empty
+            has_gas = not gas_df[gas_df['year'] == year].empty
+            has_solar = not solar_df[solar_df['year'] == year].empty
+            
+            if has_electric or has_gas or has_solar:
+                # Add square footage for this year
+                total_sqft_by_year[year] += sqft
+                
+                # Process electric
+                if has_electric:
+                    electric_usage = electric_df[electric_df['year'] == year]['usage'].sum()
+                    total_energy_by_year[year] += electric_usage * KWH_TO_KBTU
+                
+                # Process gas
+                if has_gas:
+                    gas_usage = gas_df[gas_df['year'] == year]['usage'].sum()
+                    total_energy_by_year[year] += gas_usage * THERM_TO_KBTU
+                
+                # Process solar (subtract from total)
+                if has_solar:
+                    solar_usage = solar_df[solar_df['year'] == year]['usage'].sum()
+                    total_energy_by_year[year] -= solar_usage * KWH_TO_KBTU
+    
+    # Update progress
+    progress_bar.progress((idx + 1) / total_buildings)
+
+progress_bar.empty()
+
+# Calculate EUI for each year
+eui_by_year = {}
+for year in range(2018, 2026):
+    if total_sqft_by_year[year] > 0:
+        eui = total_energy_by_year[year] / total_sqft_by_year[year]
+        eui_by_year[year] = round(eui, 2)
+
+# Create EUI data for the line graph
+valid_years = [year for year in eui_by_year.keys()]
+valid_eui = [eui_by_year[year] for year in valid_years]
+
+# Create the EUI line graph
+if len(valid_years) > 0:
+    fig = px.line(
+        x=valid_years,
+        y=valid_eui,
+        markers=True
+    )
+    
+    fig.update_layout(
+        height=500,
+        xaxis_title="Year",
+        yaxis_title="EUI (kBTU/sq ft)",
+        title={
+            'text': "Calculated EUI from Actual Meter Data",
+            'font': {'size': 20}
+        }
+    )
+    
+    # Customize x-axis to show all years 2018-2025
+    fig.update_xaxes(
+        tickmode='array',
+        tickvals=list(range(2018, 2026))
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.warning("No meter data found for EUI calculation.")
+
 
 st.plotly_chart(fig, use_container_width=True)
 
