@@ -101,14 +101,16 @@ with col2:
 # Get baseline EUI
 building_use_type = str(building_info['usetype']) if pd.notna(building_info['usetype']) else ""
 baseline_eui_value = baseline_eui.get(building_use_type, None)
+building_type = str(building_info['usetype'])
 
 def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
+   
     query = f"""
         SELECT 
             [usage]
         FROM [dbo].[{energy_type}]
-        WHERE [usetype] = '{str(building_info['usetype'])}' 
+        WHERE [usetype] = '{building_type}' 
             AND DATEPART(YEAR, [enddate]) = 2024
     """
     df = conn.query(query)
@@ -128,7 +130,7 @@ query = f"""
         SELECT 
             [sqfootage]
         FROM [dbo].[ESPMFIRSTTEST]
-        WHERE [usetype] = '{str(building_info['usetype'])}' 
+        WHERE [usetype] = '{building_type}' 
             AND YEAR([enddate]) = 2024
     """
 df = conn.query(query)
