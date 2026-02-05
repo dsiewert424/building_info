@@ -107,11 +107,12 @@ def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
     query = f"""
         SELECT 
-            TRY_CAST([usage] AS FLOAT) as usage,
+            [usage]
         FROM [dbo].[{energy_type}]
     """
     st.write(building_info['usetype'])
     df = conn.query(query)
+    # WHERE []
 
     query = f"""
         SELECT 
