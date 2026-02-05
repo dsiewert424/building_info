@@ -101,7 +101,7 @@ with col2:
 # Get baseline EUI
 building_use_type = str(building_info['usetype']) if pd.notna(building_info['usetype']) else ""
 baseline_eui_value = baseline_eui.get(building_use_type, None)
-building_type = str(building_info['usetype'])
+building_type = building_info['usetype']
 
 def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
