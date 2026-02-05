@@ -111,7 +111,7 @@ def get_total_energy_of_usetype(energy_type):
         FROM [dbo].[{energy_type}]
         WHERE [usetype] = '{str(building_info['usetype'])}' 
     """
-
+    st.write(building_info['usetype'])
     df = conn.query(query)
 
     query = f"""
