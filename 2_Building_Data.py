@@ -123,7 +123,7 @@ def get_total_energy_of_usetype(energy_type):
     return total
 
 #Get total square footage of use type
-espmid_use_type_list = {}
+espmid_use_type_list = []
 query = f"""
         SELECT 
             [sqfootage]
