@@ -1,6 +1,7 @@
 import streamlit as st
 from auth_helper import require_login
 from datetime import timedelta
+import pandas as pd
 
 require_login()
 st.title("Account Details")
