@@ -227,7 +227,7 @@ if pd.notna(building_info['sqfootage']):
                     if baseline_eui_value:
                         st.write("### EUI Comparison")
                         comparison_df = pd.DataFrame({
-                            'Metric': ['Current EUI', 'Baseline EUI', f'Average EUI of {building_info['usetype']} use type'],
+                            'Metric': ['Current EUI', 'Baseline EUI', 'Average EUI of ' + str(building_info['usetype']) + ' use type'],
                             'Value': [current_eui, baseline_eui_value, average_eui_of_usetype],
                             'Year': [f'{latest_year}', 'Benchmark']
                         })
