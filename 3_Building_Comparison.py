@@ -7,5 +7,6 @@ from auth_helper import require_login
 require_login()
 
 st.title("Building Comparison Tool")
-
+st.write("This tool is in progress.")
 conn = st.connection("sql", type="sql")
+

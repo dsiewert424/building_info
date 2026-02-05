@@ -5,7 +5,7 @@ import pandas as pd
 
 require_login()
 st.title("Account Details")
-st.write("Welcome to the 2030 District data hub. Building data is refreshed weekly.")
+st.write("Welcome to the 2030 District data hub. Building data is sourced from [Energy Star Portfolio Manager](https://portfoliomanager.energystar.gov/pm/login?testEnv=false) and refreshed weekly.")
 st.write("Access a list of all the buildings in your portfolio here. Check to make sure none of your buildings are missing meter data.")
 
 conn = st.connection("sql", type="sql")

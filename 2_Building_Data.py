@@ -91,18 +91,13 @@ selected_espmid = buildings_df.loc[
 building_info = buildings_df.loc[buildings_df['buildingname'] == selected_building].iloc[0]
 
 # Display building info
-building_info_df = pd.DataFrame({
-    'Attribute': ['Address', 'Use Type', 'Square Footage', 'ESPM ID'],
-    'Value': [
-        str(building_info.get('address', 'Not Available')) if pd.notna(building_info.get('address')) else 'Not Available',
-        str(building_info['usetype']) if pd.notna(building_info['usetype']) else 'Not Available',
-        f"{float(building_info['sqfootage']):,.0f}" if pd.notna(building_info['sqfootage']) and str(building_info['sqfootage']).replace('.', '').isdigit() else str(building_info['sqfootage']) if pd.notna(building_info['sqfootage']) else 'Not Available',
-        selected_espmid
-    ]
-})
-
-# Display as a small, clean table
-st.table(building_info_df.set_index('Attribute'))
+col1, col2 = st.columns(2)
+with col1:
+    st.write("**Address:**", str(building_info.get('address', 'Not Available')) if pd.notna(building_info.get('address')) else 'Not Available')
+    st.write("**Use Type:**", str(building_info['usetype']) if pd.notna(building_info['usetype']) else 'Not Available')
+with col2:
+    st.write("**Square Footage:**", f"{float(building_info['sqfootage']):,.0f}" if pd.notna(building_info['sqfootage']) and str(building_info['sqfootage']).replace('.', '').isdigit() else str(building_info['sqfootage']) if pd.notna(building_info['sqfootage']) else 'Not Available')
+    st.write("**ESPM ID:**", selected_espmid)
 
 # Get baseline EUI
 building_use_type = str(building_info['usetype']) if pd.notna(building_info['usetype']) else ""
