@@ -10,7 +10,7 @@ st.write("Access a list of all the buildings in your portfolio here. Check to ma
 conn = st.connection("sql", type="sql")
 
 # excluded espmid, 865 entries for total portfolio in 
-df = conn.query("SELECT TOP (1000) [buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
+df = conn.query("SELECT TOP (1000) [espmid],[buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
 
 gaps = {}
 
