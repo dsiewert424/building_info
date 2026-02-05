@@ -131,7 +131,7 @@ query = f"""
             [sqfootage]
         FROM [dbo].[ESPMFIRSTTEST]
         WHERE [usetype] = '{building_type}' 
-            AND YEAR([enddate]) = 2024
+            AND [enddate] LIKE '2024-%'
     """
 df = conn.query(query)
 total_sq_ft = 0
