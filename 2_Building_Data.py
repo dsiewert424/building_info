@@ -105,6 +105,22 @@ building_type = building_info['usetype']
 
 def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
+    query = f"""
+        SELECT 
+            [usage]
+        FROM [dbo].[{energy_type}]
+        WHERE [usetype] = '{str(building_info['usetype'])}' 
+    """
+    df = conn.query(query)
+
+    query = f"""
+        SELECT 
+            [usage]
+        FROM [dbo].[{energy_type}]
+        WHERE [enddate] LIKE '2024-%'
+    """
+    df = conn.query(query)
+
    
     query = f"""
         SELECT 
