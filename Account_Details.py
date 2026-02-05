@@ -14,7 +14,7 @@ conn = st.connection("sql", type="sql")
 df = conn.query("SELECT TOP (1000) [espmid],[buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
 
     
-display_df = df.drop(columns=['espmid'])
+
 
 df = df.rename(columns={
     'buildingname': 'Building Name',
@@ -24,6 +24,8 @@ df = df.rename(columns={
     'numbuildings': 'Number of Buildings'
 })
 
+display_df = df.drop(columns=['espmid'])
+
 st.dataframe(df, height = 500, hide_index=True)
 
 st.header("Meter Data Gaps Found")
@@ -31,7 +33,6 @@ st.header("Meter Data Gaps Found")
 # Get all espmids first
 espmids = df['espmid'].tolist()
 
-# Create a single query to get ALL meter data at once
 if espmids:
     # Create a comma-separated list for SQL IN clause
     espmid_list = ",".join([f"'{str(espmid)}'" for espmid in espmids])
@@ -68,10 +69,21 @@ if espmids:
         gaps[espmid] = espmid_gaps
 
 # Check if any gaps exist
-if any(gaps.values()):  # Check if any espmid has gaps
+if any(gaps.values()):
     for espmid, gap_list in gaps.items():
-        if gap_list:  # Only show espmids with gaps
+        if gap_list:
+            # Get building name for this espmid
+            building_row = df[df['espmid'] == espmid]
+            if not building_row.empty:
+                building_name = building_row.iloc[0]['buildingname']
+            else:
+                building_name = f"ESPM ID {espmid}"  # Fallback
+            
             for gap in gap_list:
-                st.error(f"ESPM ID {espmid}: Gap from {gap['gap_start'].date()} to {gap['gap_end'].date()}")
+                # Format dates in words
+                start_date_str = gap['gap_start'].strftime('%b %d, %Y')  # Nov 12, 2023
+                end_date_str = gap['gap_end'].strftime('%b %d, %Y')      # Nov 15, 2023
+                
+                st.error(f"**{building_name}**: Gap from {start_date_str} to {end_date_str}")
 else:
-    st.success("No gaps found in meter data!")
+    st.success("No gaps found in meter data.")
