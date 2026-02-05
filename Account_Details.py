@@ -13,10 +13,8 @@ conn = st.connection("sql", type="sql")
 # excluded espmid, 865 entries for total portfolio in 
 df = conn.query("SELECT TOP (1000) [espmid],[buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
 
-    
 
-
-df = df.rename(columns={
+display_df = df.drop(columns=['espmid']).rename(columns={
     'buildingname': 'Building Name',
     'sqfootage': 'Square Footage',
     'usetype': 'Use Type',
@@ -24,7 +22,8 @@ df = df.rename(columns={
     'numbuildings': 'Number of Buildings'
 })
 
-display_df = df.drop(columns=['espmid'])
+# Display the table WITHOUT espmid
+st.dataframe(display_df, height=500, hide_index=True)
 
 st.dataframe(df, height = 500, hide_index=True)
 
@@ -75,7 +74,7 @@ if any(gaps.values()):
             # Get building name for this espmid
             building_row = df[df['espmid'] == espmid]
             if not building_row.empty:
-                building_name = building_row.iloc[0]['Building Name']
+                building_name = building_row.iloc[0]['buildingname']
             else:
                 building_name = f"ESPM ID {espmid}"  # Fallback
             
