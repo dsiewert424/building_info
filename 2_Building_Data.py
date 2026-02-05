@@ -109,7 +109,7 @@ def get_total_energy_of_usetype(energy_type):
             [usage]
         FROM [dbo].[{energy_type}]
         WHERE [usetype] = '{building_info['usetype']}' 
-            AND YEAR([enddate]) = 2024
+            AND DATEPART(YEAR, [enddate]) = 2024
     """
     df = conn.query(query)
 
