@@ -111,7 +111,7 @@ def get_total_energy_of_usetype(energy_type):
             [usage]
         FROM [dbo].[{energy_type}]
         WHERE [usetype] = '{building_type}' 
-            AND DATEPART(YEAR, [enddate]) = 2024
+            AND LEFT(CONVERT(VARCHAR(10), [enddate], 120), 4) = '2024'
     """
     df = conn.query(query)
 
@@ -131,7 +131,7 @@ query = f"""
             [sqfootage]
         FROM [dbo].[ESPMFIRSTTEST]
         WHERE [usetype] = '{building_type}' 
-            AND [enddate] LIKE '2024-%'
+            AND LEFT(CONVERT(VARCHAR(10), [enddate], 120), 4) = '2024'
     """
 df = conn.query(query)
 total_sq_ft = 0
