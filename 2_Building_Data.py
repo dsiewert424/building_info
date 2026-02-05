@@ -105,47 +105,29 @@ building_type = building_info['usetype']
 
 def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
-    query = f"""
-        SELECT 
-            [usage]
-        FROM [dbo].[{energy_type}]
-    """
-    st.write(building_info['usetype'])
-    df = conn.query(query)
-    # WHERE []
-
-    query = f"""
-        SELECT 
-            [usage]
-        FROM [dbo].[{energy_type}]
-        WHERE [enddate] LIKE '2024-%'
-    """
-    df = conn.query(query)
-
-   
-    query = f"""
-        SELECT 
-            [usage]
-        FROM [dbo].[{energy_type}]
-        WHERE [usetype] = '{str(building_info['usetype'])}' 
-            AND [enddate] LIKE '2024-%'
-    """
-    df = conn.query(query)
-
-    # Calculate total
     total = 0
-    if not df.empty: 
-     for index, row in df.iterrows():
-            if pd.notna(row['usage']):
-                total += float(row['usage'])
+    for i in espmid_use_type_list:
+        query = f"""
+        SELECT 
+            [usage]
+        FROM [dbo].[{energy_type}]
+        WHERE [espmid] = '{i}' 
+            AND [enddate] LIKE '2024-%'
+        """
+        df = conn.query(query)
+        if not df.empty: 
+            for index, row in df.iterrows():
+                if pd.notna(row['usage']):
+                    total += float(row['usage'])
     
     return total
 
 #Get total square footage of use type
-
+espmid_use_type_list = {}
 query = f"""
         SELECT 
             [sqfootage]
+            [espmid]
         FROM [dbo].[ESPMFIRSTTEST]
         WHERE [usetype] = '{building_type}' 
     """
@@ -153,6 +135,7 @@ df = conn.query(query)
 total_sq_ft = 0
 if not df.empty: 
      for index, row in df.iterrows():
+            espmid_use_type_list.append(row['espmid'])
             if pd.notna(row['sqfootage']):
                 total_sq_ft += float(row['sqfootage'])
 
