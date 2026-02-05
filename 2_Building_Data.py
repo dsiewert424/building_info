@@ -15,7 +15,7 @@ conn = st.connection("sql", type="sql")
 KWH_TO_KBTU = 3.412  # 1 kWh = 3.412 kBTU
 THERM_TO_KBTU = 100  # 1 therm = 100 kBTU (also ~1 CCF = 100 kBTU)
 
-# Baseline EUI lookup dictionary (in kBTU/sq ft)
+# Baseline EUI lookup dictionary (in kBTU/sq ft) - is this correct? 
 baseline_eui = {
     "Adult Education": 60,
     "Bar/Nightclub": 150,
@@ -97,11 +97,49 @@ with col1:
     st.write("**Use Type:**", str(building_info['usetype']) if pd.notna(building_info['usetype']) else 'Not Available')
 with col2:
     st.write("**Square Footage:**", f"{float(building_info['sqfootage']):,.0f}" if pd.notna(building_info['sqfootage']) and str(building_info['sqfootage']).replace('.', '').isdigit() else str(building_info['sqfootage']) if pd.notna(building_info['sqfootage']) else 'Not Available')
-    st.write("**ESPM ID:**", selected_espmid)
 
 # Get baseline EUI
 building_use_type = str(building_info['usetype']) if pd.notna(building_info['usetype']) else ""
 baseline_eui_value = baseline_eui.get(building_use_type, None)
+
+def get_total_energy_of_usetype(energy_type):
+    # getting energy total only in year 2024
+    query = f"""
+        SELECT 
+            [usage]
+        FROM [dbo].[{energy_type}]
+        WHERE [usetype] = '{building_info['usetype']}' 
+            AND YEAR([enddate]) = 2024
+    """
+    df = conn.query(query)
+
+    # Calculate total
+    total = 0
+    if not df.empty: 
+     for index, row in df.iterrows():
+            if pd.notna(row['usage']):
+                total += float(row['usage'])
+    
+    return total
+
+#Get total square footage of use type
+query = f"""
+        SELECT 
+            [sqfootage]
+        FROM [dbo].[ESPMFIRSTTEST]
+        WHERE [usetype] = '{building_info['usetype']}' 
+            AND YEAR([enddate]) = 2024
+    """
+df = conn.query(query)
+total_sq_ft = 0
+if not df.empty: 
+     for index, row in df.iterrows():
+            if pd.notna(row['sqfootage']):
+                total_sq_ft += float(row['sqfootage'])
+
+#Get average EUI of use type in year 2024
+average_eui_of_usetype = ((get_total_energy_of_usetype('electric') * KWH_TO_KBTU) - (get_total_energy_of_usetype('solar') * KWH_TO_KBTU) + (get_total_energy_of_usetype('naturalgas')* THERM_TO_KBTU)) / total_sq_ft
+
 
 # Function to get meter data
 def get_meter_data(table_name, espmid, energy_type):
@@ -189,8 +227,8 @@ if pd.notna(building_info['sqfootage']):
                     if baseline_eui_value:
                         st.write("### EUI Comparison")
                         comparison_df = pd.DataFrame({
-                            'Metric': ['Current EUI', 'Baseline EUI'],
-                            'Value': [current_eui, baseline_eui_value],
+                            'Metric': ['Current EUI', 'Baseline EUI', f'Average EUI of {building_info['usetype']} use type'],
+                            'Value': [current_eui, baseline_eui_value, average_eui_of_usetype],
                             'Year': [f'{latest_year}', 'Benchmark']
                         })
                         
