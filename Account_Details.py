@@ -12,55 +12,6 @@ conn = st.connection("sql", type="sql")
 # excluded espmid, 865 entries for total portfolio in 
 df = conn.query("SELECT TOP (1000) [espmid],[buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
 
-gaps = {}
-
-for espmid in df['espmid']:
-    meter_query = f"""
-        SELECT [meterid], [startdate], [enddate]
-        FROM [dbo].[electric]
-        WHERE [espmid] = '{espmid}'
-        ORDER BY [startdate]
-    """
-    
-    try:
-        meter_df = conn.query(meter_query)
-        
-        if len(meter_df) <= 1:
-            # No gaps possible with 0 or 1 record
-            gaps[espmid] = []
-            continue
-        
-        # Convert to datetime - this is necessary
-        meter_df['startdate'] = pd.to_datetime(meter_df['startdate'])
-        meter_df['enddate'] = pd.to_datetime(meter_df['enddate'])
-        
-        # No need to sort again since SQL already ordered it
-        # meter_df is already sorted by startdate from the SQL query
-        
-        espmid_gaps = []  # List to store all gaps for this espmid
-        
-        # Check for gaps between consecutive meter periods
-        for i in range(len(meter_df) - 1):
-            current_end = meter_df.loc[i, 'enddate']
-            next_start = meter_df.loc[i + 1, 'startdate']
-            
-            # If there's a gap between the end of current and start of next
-            if next_start > current_end + timedelta(days=1):
-                gap_start = current_end + timedelta(days=1)
-                gap_end = next_start - timedelta(days=1)
-                
-                # Add this gap to the list for this espmid
-                espmid_gaps.append({
-                    'gap_start': gap_start,
-                    'gap_end': gap_end
-                })
-        
-        # Store all gaps for this espmid in the main dictionary
-        gaps[espmid] = espmid_gaps
-        
-    except Exception as e:
-        print(f"Error processing espmid {espmid}: {str(e)}")
-        gaps[espmid] = []
     
 display_df = df.drop(columns=['espmid'])
 
@@ -75,6 +26,45 @@ df = df.rename(columns={
 st.dataframe(df, height = 500, hide_index=True)
 
 st.header("Meter Data Gaps Found")
+
+# Get all espmids first
+espmids = df['espmid'].tolist()
+
+# Create a single query to get ALL meter data at once
+if espmids:
+    # Create a comma-separated list for SQL IN clause
+    espmid_list = ",".join([f"'{str(espmid)}'" for espmid in espmids])
+    
+    all_meters_query = f"""
+        SELECT [espmid], [meterid], [startdate], [enddate]
+        FROM [dbo].[electric]
+        WHERE [espmid] IN ({espmid_list})
+        ORDER BY [espmid], [startdate]
+    """
+    
+    all_meters_df = conn.query(all_meters_query)
+    
+    # Group by espmid in Python
+    grouped = all_meters_df.groupby('espmid')
+    
+    gaps = {}
+    for espmid, group_df in grouped:
+        if len(group_df) <= 1:
+            gaps[espmid] = []
+            continue
+        
+        group_df['startdate'] = pd.to_datetime(group_df['startdate'])
+        group_df['enddate'] = pd.to_datetime(group_df['enddate'])
+        
+        espmid_gaps = []
+        for i in range(len(group_df) - 1):
+            if group_df.iloc[i + 1]['startdate'] > group_df.iloc[i]['enddate'] + timedelta(days=1):
+                espmid_gaps.append({
+                    'gap_start': group_df.iloc[i]['enddate'] + timedelta(days=1),
+                    'gap_end': group_df.iloc[i + 1]['startdate'] - timedelta(days=1)
+                })
+        
+        gaps[espmid] = espmid_gaps
 
 # Check if any gaps exist
 if any(gaps.values()):  # Check if any espmid has gaps
