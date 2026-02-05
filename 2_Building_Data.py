@@ -107,7 +107,7 @@ def get_total_energy_of_usetype(energy_type):
     # getting energy total only in year 2024
     query = f"""
         SELECT 
-            [usage]
+            TRY_CAST([usage] AS FLOAT) as usage,
         FROM [dbo].[{energy_type}]
         WHERE [usetype] = '{building_info['usetype']}' 
     """
