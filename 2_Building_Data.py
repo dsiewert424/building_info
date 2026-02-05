@@ -108,7 +108,7 @@ def get_total_energy_of_usetype(energy_type):
         SELECT 
             [usage]
         FROM [dbo].[{energy_type}]
-        WHERE [usetype] = '{building_info['usetype']}' 
+        WHERE [usetype] = '{str(building_info['usetype'])}' 
             AND DATEPART(YEAR, [enddate]) = 2024
     """
     df = conn.query(query)
@@ -123,11 +123,12 @@ def get_total_energy_of_usetype(energy_type):
     return total
 
 #Get total square footage of use type
+
 query = f"""
         SELECT 
             [sqfootage]
         FROM [dbo].[ESPMFIRSTTEST]
-        WHERE [usetype] = '{building_info['usetype']}' 
+        WHERE [usetype] = '{str(building_info['usetype'])}' 
             AND YEAR([enddate]) = 2024
     """
 df = conn.query(query)
