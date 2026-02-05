@@ -131,7 +131,6 @@ query = f"""
             [sqfootage]
         FROM [dbo].[ESPMFIRSTTEST]
         WHERE [usetype] = '{building_type}' 
-            AND LEFT(CONVERT(VARCHAR(10), [enddate], 120), 4) = '2024'
     """
 df = conn.query(query)
 total_sq_ft = 0
