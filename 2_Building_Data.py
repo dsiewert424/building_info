@@ -211,7 +211,7 @@ all_meter_data = pd.concat([electric_df, gas_df, solar_df], ignore_index=True)
 
 # 1. Calculate EUI for MOST RECENT YEAR ONLY
 if pd.notna(building_info['sqfootage']):
-    try:
+    # try:
         sqft_value = float(building_info['sqfootage'])
         
         if not all_meter_data.empty:
@@ -295,8 +295,8 @@ if pd.notna(building_info['sqfootage']):
                         st.info(f"Current EUI ({latest_year}): **{current_eui:.1f} kBTU/sq ft**")
                         st.warning("No baseline EUI available for this building type.")
                     
-    except (ValueError, TypeError) as e:
-        st.info(f"Cannot calculate EUI: {e}")
+    # except (ValueError, TypeError) as e:
+    #     st.info(f"Cannot calculate EUI: {e}")
 
 # 2. Stepped line graphs for each energy type
 
