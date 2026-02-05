@@ -110,7 +110,7 @@ def get_total_energy_of_usetype(energy_type):
         SELECT 
             [usage]
         FROM [dbo].[{energy_type}]
-        WHERE [usetype] = '{building_type}' 
+        WHERE [usetype] = '{str(building_info['usetype'])}' 
             AND [enddate] LIKE '2024-%'
     """
     df = conn.query(query)
