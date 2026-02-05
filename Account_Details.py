@@ -13,7 +13,7 @@ conn = st.connection("sql", type="sql")
 # excluded espmid, 865 entries for total portfolio in 
 df = conn.query("SELECT TOP (1000) [espmid],[buildingname],[sqfootage],[usetype], [occupancy], [numbuildings] FROM [dbo].[ESPMFIRSTTEST];")
 
-
+# Display the table without espmid and edit labels
 display_df = df.drop(columns=['espmid']).rename(columns={
     'buildingname': 'Building Name',
     'sqfootage': 'Square Footage',
@@ -22,10 +22,8 @@ display_df = df.drop(columns=['espmid']).rename(columns={
     'numbuildings': 'Number of Buildings'
 })
 
-# Display the table WITHOUT espmid
-st.dataframe(display_df, height=500, hide_index=True)
 
-st.dataframe(df, height = 500, hide_index=True)
+st.dataframe(display_df, height=500, hide_index=True)
 
 st.header("Meter Data Gaps Found")
 
