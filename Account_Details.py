@@ -75,7 +75,7 @@ if any(gaps.values()):
             # Get building name for this espmid
             building_row = df[df['espmid'] == espmid]
             if not building_row.empty:
-                building_name = building_row.iloc[0]['buildingname']
+                building_name = building_row.iloc[0]['Building Name']
             else:
                 building_name = f"ESPM ID {espmid}"  # Fallback
             
