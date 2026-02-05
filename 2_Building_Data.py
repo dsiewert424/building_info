@@ -126,7 +126,7 @@ def get_total_energy_of_usetype(energy_type):
 espmid_use_type_list = []
 query = f"""
         SELECT 
-            [sqfootage]
+            [sqfootage],
             [espmid]
         FROM [dbo].[ESPMFIRSTTEST]
         WHERE [usetype] = '{building_type}' 
