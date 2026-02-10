@@ -103,77 +103,78 @@ building_use_type = str(building_info['usetype']) if pd.notna(building_info['use
 baseline_eui_value = baseline_eui.get(building_use_type, None)
 building_type = building_info['usetype']
 
-def get_all_energy_totals():
-    """Get all energy totals in ONE batch query"""
-    if not espmid_use_type_list:
-        return 0, 0, 0
+# Tabling averaged eui of usetype for now...
+# def get_all_energy_totals():
+#     """Get all energy totals in ONE batch query"""
+#     if not espmid_use_type_list:
+#         return 0, 0, 0
     
-    # Create comma-separated list of espmids
-    espmid_str = ",".join([f"'{espmid}'" for espmid in espmid_use_type_list])
+#     # Create comma-separated list of espmids
+#     espmid_str = ",".join([f"'{espmid}'" for espmid in espmid_use_type_list])
     
-    # Query for electric
-    electric_query = f"""
-        SELECT SUM(CAST([usage] AS FLOAT)) as total
-        FROM [dbo].[electric]
-        WHERE [espmid] IN ({espmid_str})
-            AND [enddate] LIKE '2024-%'
-    """
+#     # Query for electric
+#     electric_query = f"""
+#         SELECT SUM(CAST([usage] AS FLOAT)) as total
+#         FROM [dbo].[electric]
+#         WHERE [espmid] IN ({espmid_str})
+#             AND [enddate] LIKE '2024-%'
+#     """
     
-    # Query for solar
-    solar_query = f"""
-        SELECT SUM(CAST([usage] AS FLOAT)) as total
-        FROM [dbo].[solar]
-        WHERE [espmid] IN ({espmid_str})
-            AND [enddate] LIKE '2024-%'
-    """
+#     # Query for solar
+#     solar_query = f"""
+#         SELECT SUM(CAST([usage] AS FLOAT)) as total
+#         FROM [dbo].[solar]
+#         WHERE [espmid] IN ({espmid_str})
+#             AND [enddate] LIKE '2024-%'
+#     """
     
-    # Query for natural gas
-    gas_query = f"""
-        SELECT SUM(CAST([usage] AS FLOAT)) as total
-        FROM [dbo].[naturalgas]
-        WHERE [espmid] IN ({espmid_str})
-            AND [enddate] LIKE '2024-%'
-    """
+#     # Query for natural gas
+#     gas_query = f"""
+#         SELECT SUM(CAST([usage] AS FLOAT)) as total
+#         FROM [dbo].[naturalgas]
+#         WHERE [espmid] IN ({espmid_str})
+#             AND [enddate] LIKE '2024-%'
+#     """
     
-    try:
-        # Execute all queries
-        electric_df = conn.query(electric_query)
-        solar_df = conn.query(solar_query)
-        gas_df = conn.query(gas_query)
+#     try:
+#         # Execute all queries
+#         electric_df = conn.query(electric_query)
+#         solar_df = conn.query(solar_query)
+#         gas_df = conn.query(gas_query)
         
-        # Extract totals
-        electric_total = float(electric_df.iloc[0]['total']) if not electric_df.empty and pd.notna(electric_df.iloc[0]['total']) else 0
-        solar_total = float(solar_df.iloc[0]['total']) if not solar_df.empty and pd.notna(solar_df.iloc[0]['total']) else 0
-        gas_total = float(gas_df.iloc[0]['total']) if not gas_df.empty and pd.notna(gas_df.iloc[0]['total']) else 0
+#         # Extract totals
+#         electric_total = float(electric_df.iloc[0]['total']) if not electric_df.empty and pd.notna(electric_df.iloc[0]['total']) else 0
+#         solar_total = float(solar_df.iloc[0]['total']) if not solar_df.empty and pd.notna(solar_df.iloc[0]['total']) else 0
+#         gas_total = float(gas_df.iloc[0]['total']) if not gas_df.empty and pd.notna(gas_df.iloc[0]['total']) else 0
         
-        return electric_total, solar_total, gas_total
+#         return electric_total, solar_total, gas_total
         
-    except Exception as e:
-        st.error(f"Error getting energy totals: {str(e)}")
-        return 0, 0, 0
+#     except Exception as e:
+#         st.error(f"Error getting energy totals: {str(e)}")
+#         return 0, 0, 0
 
 
-#Get total square footage of use type
-espmid_use_type_list = []
-query = f"""
-        SELECT 
-            [sqfootage],
-            [espmid]
-        FROM [dbo].[ESPMFIRSTTEST]
-        WHERE [usetype] = '{building_type}' 
-    """
-df = conn.query(query)
-total_sq_ft = 0
-if not df.empty: 
-     for index, row in df.iterrows():
-            espmid_use_type_list.append(row['espmid'])
-            if pd.notna(row['sqfootage']):
-                total_sq_ft += float(row['sqfootage'])
+# #Get total square footage of use type
+# espmid_use_type_list = []
+# query = f"""
+#         SELECT 
+#             [sqfootage],
+#             [espmid]
+#         FROM [dbo].[ESPMFIRSTTEST]
+#         WHERE [usetype] = '{building_type}' 
+#     """
+# df = conn.query(query)
+# total_sq_ft = 0
+# if not df.empty: 
+#      for index, row in df.iterrows():
+#             espmid_use_type_list.append(row['espmid'])
+#             if pd.notna(row['sqfootage']):
+#                 total_sq_ft += float(row['sqfootage'])
 
-#Get average EUI of use type in year 2024
-electric_total, solar_total, gas_total = get_all_energy_totals()
-total_kbtu = (electric_total * KWH_TO_KBTU) - (solar_total * KWH_TO_KBTU) + (gas_total * THERM_TO_KBTU)
-average_eui_of_usetype = total_kbtu / total_sq_ft if total_sq_ft > 0 else 0
+# #Get average EUI of use type in year 2024
+# electric_total, solar_total, gas_total = get_all_energy_totals()
+# total_kbtu = (electric_total * KWH_TO_KBTU) - (solar_total * KWH_TO_KBTU) + (gas_total * THERM_TO_KBTU)
+# average_eui_of_usetype = total_kbtu / total_sq_ft if total_sq_ft > 0 else 0
 
 # Function to get meter data
 def get_meter_data(table_name, espmid, energy_type):
@@ -211,7 +212,7 @@ all_meter_data = pd.concat([electric_df, gas_df, solar_df], ignore_index=True)
 
 # 1. Calculate EUI for MOST RECENT YEAR ONLY
 if pd.notna(building_info['sqfootage']):
-    # try:
+    try:
         sqft_value = float(building_info['sqfootage'])
         
         if not all_meter_data.empty:
@@ -261,8 +262,9 @@ if pd.notna(building_info['sqfootage']):
                     if baseline_eui_value:
                         st.write("### EUI Comparison")
                         comparison_df = pd.DataFrame({
-                            'Metric': ['Current EUI', 'Baseline EUI', 'Average EUI of ' + str(building_info['usetype']) + ' use type'],
-                            'Value': [current_eui, baseline_eui_value, average_eui_of_usetype],
+                            # DELETED 'Average EUI of ' + str(building_info['usetype']) + ' use type' AND , average_eui_of_usetype
+                            'Metric': ['Current EUI', 'Baseline EUI'],
+                            'Value': [current_eui, baseline_eui_value],
                             'Year': [f'{latest_year}', 'Benchmark']
                         })
                         
@@ -287,16 +289,16 @@ if pd.notna(building_info['sqfootage']):
                         diff_pct = (diff / baseline_eui_value * 100) if baseline_eui_value > 0 else 0
                         
                         if diff > 0:
-                            st.warning(f"⚠️ Current EUI is **{diff:.1f} kBTU/sq ft higher** than baseline ({diff_pct:+.1f}%)")
+                            st.warning(f"Current EUI is **{diff:.1f} kBTU/sq ft higher** than baseline ({diff_pct:+.1f}%)")
                         else:
-                            st.success(f"✅ Current EUI is **{abs(diff):.1f} kBTU/sq ft lower** than baseline ({diff_pct:+.1f}%)")
+                            st.success(f"Current EUI is **{abs(diff):.1f} kBTU/sq ft lower** than baseline ({diff_pct:+.1f}%)")
                         
                     else:
                         st.info(f"Current EUI ({latest_year}): **{current_eui:.1f} kBTU/sq ft**")
                         st.warning("No baseline EUI available for this building type.")
                     
-    # except (ValueError, TypeError) as e:
-    #     st.info(f"Cannot calculate EUI: {e}")
+    except (ValueError, TypeError) as e:
+        st.info(f"Cannot calculate EUI: {e}")
 
 # 2. Stepped line graphs for each energy type
 
