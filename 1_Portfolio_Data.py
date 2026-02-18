@@ -61,68 +61,47 @@ st.dataframe(df, height=500, hide_index=True)
 
 # Pie Chart - 4 categories: Commercial,City-Owned,Multi-Unit,Institutional
 building_categorization = {
-    'Commercial' : 'Bar/Nightclub',
-    'Commercial' : 'Bowling Alley',
-    'Commercial' : 'Convenience Store without Gas Station',
-    'Commercial' : 'Financial Office',
-    'Commercial' : 'Fitness Center/Health Club/Gym',
-    'Commercial' : 'Food Service',
-    'Commercial' : 'Hotel',
-    'Commercial' : 'Ice/Curling Rink',
-    'Commercial' : 'Mixed Use Property',
-    'Commercial' : 'Museum',
-    'Commercial' : 'Office',
-    'Commercial' : 'Other - Entertainment/Public Assembly',
-    'Commercial' : 'Other - Mall',
-    'Commercial' : 'Other - Recreation',
-    'Commercial' : 'Other - Restaurant/Bar',
-    'Commercial' : 'Other - Services',
-    'Commercial' : 'Parking',
-    'Commercial' : 'Personal Services (Health/Beauty, Dry Cleaning, etc)',
-    'Commercial' : 'Restaurant',
-    'Commercial' : 'Retail Store',
-    'Commercial' : 'Self-Storage Facility',
-    'Commercial' : 'Strip Mall',
-    'Commercial' : 'Supermarket/Grocery Store',
-    'Commercial' : 'Swimming Pool',
-    'Commercial' : 'Vehicle Dealership',
-    'Commercial' : 'Vehicle Repair Services',
-    'Commercial' : 'Wholesale Club/Supercenter',
-    'Commercial' : 'Other - Lodging/Residential',
+    'Commercial': [
+        'Bar/Nightclub', 'Bowling Alley', 'Convenience Store without Gas Station',
+        'Financial Office', 'Fitness Center/Health Club/Gym', 'Food Service',
+        'Hotel', 'Ice/Curling Rink', 'Mixed Use Property', 'Museum', 'Office',
+        'Other - Entertainment/Public Assembly', 'Other - Mall', 'Other - Recreation',
+        'Other - Restaurant/Bar', 'Other - Services', 'Parking',
+        'Personal Services (Health/Beauty, Dry Cleaning, etc)', 'Restaurant',
+        'Retail Store', 'Self-Storage Facility', 'Strip Mall', 'Supermarket/Grocery Store',
+        'Swimming Pool', 'Vehicle Dealership', 'Vehicle Repair Services',
+        'Wholesale Club/Supercenter', 'Other - Lodging/Residential'
+    ],
     
-    'City-Owned' : 'Courthouse',
-    'City-Owned' : 'Fire Station',
-    'City-Owned' : 'Library',
-    'City-Owned' : 'Police Station',
-    'City-Owned' : 'Prison/Incarceration',
-    'City-Owned' : 'Drinking Water Treatment & Distribution',
-    'City-Owned' : 'Wastewater Treatment Plant',
-    'City-Owned' : 'Transportation Terminal/Station',
-    'City-Owned' : 'Other - Public Services',
-    'City-Owned' : 'Other - Utility',
+    'City-Owned': [
+        'Courthouse', 'Fire Station', 'Library', 'Police Station', 'Prison/Incarceration',
+        'Drinking Water Treatment & Distribution', 'Wastewater Treatment Plant',
+        'Transportation Terminal/Station', 'Other - Public Services', 'Other - Utility'
+    ],
     
-    'Multi-Unit' : 'Multifamily Housing',
-    'Multi-Unit' : 'Residence Hall/Dormitory',
-    'Multi-Unit' : 'Residential Care Facility',
-    'Multi-Unit' : 'Senior Living Community',
+    'Multi-Unit': [
+        'Multifamily Housing', 'Residence Hall/Dormitory', 'Residential Care Facility',
+        'Senior Living Community'
+    ],
     
-    'Institutional' : 'Adult Education',
-    'Institutional' : 'College/University',
-    'Institutional' : 'Community Center and Social Meeting Hall',
-    'Institutional' : 'K-12 School',
-    'Institutional' : 'Laboratory',
-    'Institutional' : 'Medical Office',
-    'Institutional' : 'Other - Education',
-    'Institutional' : 'Other - Technology/Science',
-    'Institutional' : 'Worship Facility',
-    'Institutional' : 'Distribution Center',
-    'Institutional' : 'Energy/Power Station',
-    'Institutional' : 'Manufacturing/Industrial Plant',
-    'Institutional' : 'Non-Refrigerated Warehouse',
-    'Institutional' : 'Other'
+    'Institutional': [
+        'Adult Education', 'College/University', 'Community Center and Social Meeting Hall',
+        'K-12 School', 'Laboratory', 'Medical Office', 'Other - Education',
+        'Other - Technology/Science', 'Worship Facility', 'Distribution Center',
+        'Energy/Power Station', 'Manufacturing/Industrial Plant',
+        'Non-Refrigerated Warehouse', 'Other'
+    ]
 }
-display_df = df
-display_df['usetype'] = df['usetype'].replace(building_categorization)
+
+# Create reverse mapping (easier approach)
+reverse_map = {}
+for category, building_list in building_categorization.items():
+    for building_type in building_list:
+        reverse_map[building_type] = category
+
+# Apply the mapping
+display_df = df.copy()
+display_df['category'] = df['usetype'].map(reverse_map).fillna('Other/Uncategorized')
 
 fig_pie = px.pie(
     display_df,
