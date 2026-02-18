@@ -83,8 +83,8 @@ def print_gaps(gap_dict):
             
                 for gap in gap_list:
                     # Format dates in words
-                    start_date_str = gap['gap_start'].strftime('%b %d, %Y')  # Nov 12, 2023
-                    end_date_str = gap['gap_end'].strftime('%b %d, %Y')      # Nov 15, 2023
+                    start_date_str = gap['gap_start'].strftime('%b %d, %Y')  
+                    end_date_str = gap['gap_end'].strftime('%b %d, %Y')      
                 
                     st.error(f"**{building_name}**: Gap from {start_date_str} to {end_date_str}")
     else:
