@@ -110,35 +110,31 @@ category_totals = df.groupby('category').agg({
 
 st.dataframe(category_totals)
 
-# Or create a pie chart
-fig = px.pie(category_totals, values='total_sqft', names='category', title='Square Footage by Category')
-st.plotly_chart(fig)
+fig_pie = px.pie(
+    category_totals,
+    values='total_sqft',
+    names='category',
+    hole=0.3
+)
 
-# fig_pie = px.pie(
-#     display_df,
-#     values='total_sqft',
-#     names='usetype',
-#     hole=0.3
-# )
+fig_pie.update_layout(
+    height=700,  
+    margin=dict(t=50, b=150, l=50, r=50),  
+    showlegend=False,
+    title={
+        'text': "Largest Property Types by Square Footage",
+        'font': {'size': 20}
+    }
+)
 
-# fig_pie.update_layout(
-#     height=700,  
-#     margin=dict(t=50, b=150, l=50, r=50),  
-#     showlegend=False,
-#     title={
-#         'text': "Largest Property Types by Square Footage",
-#         'font': {'size': 20}
-#     }
-# )
+# Make labels smaller so they fit better
+fig_pie.update_traces(
+    textposition='outside',
+    textinfo='percent+label',
+    textfont_size=12  # Smaller font
+)
 
-# # Make labels smaller so they fit better
-# fig_pie.update_traces(
-#     textposition='outside',
-#     textinfo='percent+label',
-#     textfont_size=12  # Smaller font
-# )
-
-# st.plotly_chart(fig_pie, use_container_width=True)
+st.plotly_chart(fig_pie, use_container_width=True)
 
 
 
