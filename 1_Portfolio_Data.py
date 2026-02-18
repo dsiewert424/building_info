@@ -93,41 +93,52 @@ building_categorization = {
     ]
 }
 
-# Create reverse mapping (easier approach)
-reverse_map = {}
+# Create a mapping from building type to category
+type_to_category = {}
 for category, building_list in building_categorization.items():
     for building_type in building_list:
-        reverse_map[building_type] = category
+        type_to_category[building_type] = category
 
-# Apply the mapping
-display_df = df.copy()
-display_df['category'] = df['usetype'].map(reverse_map).fillna('Other/Uncategorized')
+# Add category column to your dataframe
+df['category'] = df['usetype'].map(type_to_category).fillna('Uncategorized')
 
-fig_pie = px.pie(
-    display_df,
-    values='total_sqft',
-    names='usetype',
-    hole=0.3
-)
+# NOW aggregate by category to get your 4 totals
+category_totals = df.groupby('category').agg({
+    'total_sqft': 'sum',
+    'building_count': 'sum'
+}).reset_index()
 
-fig_pie.update_layout(
-    height=700,  
-    margin=dict(t=50, b=150, l=50, r=50),  
-    showlegend=False,
-    title={
-        'text': "Largest Property Types by Square Footage",
-        'font': {'size': 20}
-    }
-)
+st.dataframe(category_totals)
 
-# Make labels smaller so they fit better
-fig_pie.update_traces(
-    textposition='outside',
-    textinfo='percent+label',
-    textfont_size=12  # Smaller font
-)
+# Or create a pie chart
+fig = px.pie(category_totals, values='total_sqft', names='category', title='Square Footage by Category')
+st.plotly_chart(fig)
 
-st.plotly_chart(fig_pie, use_container_width=True)
+# fig_pie = px.pie(
+#     display_df,
+#     values='total_sqft',
+#     names='usetype',
+#     hole=0.3
+# )
+
+# fig_pie.update_layout(
+#     height=700,  
+#     margin=dict(t=50, b=150, l=50, r=50),  
+#     showlegend=False,
+#     title={
+#         'text': "Largest Property Types by Square Footage",
+#         'font': {'size': 20}
+#     }
+# )
+
+# # Make labels smaller so they fit better
+# fig_pie.update_traces(
+#     textposition='outside',
+#     textinfo='percent+label',
+#     textfont_size=12  # Smaller font
+# )
+
+# st.plotly_chart(fig_pie, use_container_width=True)
 
 
 
