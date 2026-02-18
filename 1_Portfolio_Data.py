@@ -129,7 +129,8 @@ building_categorization = {
         'Other'
     ]
 }
-display_df = df['use_type'].replace(building_categorization)
+display_df = df
+display_df['use_type'] = df['use_type'].replace(building_categorization)
 
 fig_pie = px.pie(
     display_df,
